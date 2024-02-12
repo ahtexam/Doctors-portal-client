@@ -1,9 +1,11 @@
 import { format } from 'date-fns';
-import React from 'react';
+import React, { useContext } from 'react';
+import { AuthContext } from '../../../contexts/AuthProvider';
 
 const BookingModal = ({treatment, setTreatment, selectedDate }) => {
     const {name, slots}=treatment;
     const date= format(selectedDate, "PP")
+    const {user} = useContext(AuthContext);
 
     const handleBooking = event =>{
         event.preventDefault();
@@ -22,8 +24,22 @@ const BookingModal = ({treatment, setTreatment, selectedDate }) => {
             phone,
         }
 
-        console.log(booking);
-        setTreatment(null);
+
+        fetch('http://localhost:5000/bookings',{
+            method:'POST',
+            headers: {
+                'content-type': 'application/json'
+            },
+            body: JSON.stringify(booking)
+        })
+        .then(res =>res.json())
+        .then(data =>{
+            console.log(data);
+            setTreatment(null);
+            alert('Your booking confirmed');
+        })
+
+        
     }
     return (
         <div>
@@ -43,8 +59,8 @@ const BookingModal = ({treatment, setTreatment, selectedDate }) => {
                                 )
                             }
                         </select>         
-                        <input name='name' type="text" placeholder="Your Name" className="input input-bordered w-full " />      
-                        <input name='email' type="email" placeholder="Your Email" className="input input-bordered w-full " />      
+                        <input name='name' type="text" defaultValue={user?.displayName}readOnly placeholder="Your Name" className="input input-bordered w-full " />      
+                        <input name='email' type="email" defaultValue={user?.email} readOnly placeholder="Your Email" className="input input-bordered w-full " />      
                         <input name='phone' type="text" placeholder="Your phone" className="input input-bordered w-full " />
                         <br/> 
                         <input className=' btn btn-accent w-full mex-w-xm' type='submit' value='Submit'/>     

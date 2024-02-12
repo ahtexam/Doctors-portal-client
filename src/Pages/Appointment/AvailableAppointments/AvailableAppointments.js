@@ -2,15 +2,24 @@ import { format } from 'date-fns';
 import React, { useEffect, useState } from 'react';
 import AppointmentOption from './AppointmentOption';
 import BookingModal from '../BookingModal/BookingModal';
+import { useQuery } from '@tanstack/react-query';
 
 const AvailableAppointments = ({selectedDate}) => {
-    const [appointmentOptions, setAppointmentOptions]= useState([]);
+    // const [appointmentOptions, setAppointmentOptions]= useState([]);
     const [treatment, setTreatment]= useState(null);
-    useEffect(()=>{
-        fetch('http://localhost:5000/appintmentOptions')
+    const date = format(selectedDate, 'PP');
+    
+    const {data:appointmentOptions=[] } = useQuery({
+        queryKey: [ 'appintmentOptions', date],
+        queryFn: () => fetch(`http://localhost:5000/appintmentOptions?date=${date}`)
         .then(res =>res.json())
-        .then(data =>setAppointmentOptions(data))
-    },[]);
+    })
+
+    // useEffect(()=>{
+    //     fetch('http://localhost:5000/appintmentOptions')
+    //     .then(res =>res.json())
+    //     .then(data =>setAppointmentOptions(data))
+    // },[]);
     return (
         <section>
             <p className='text-center text-secondary text-bold mt-20'>Available Services on {format(selectedDate, 'PP')}</p>
